@@ -87,12 +87,12 @@ int match_string(String* strings, int numStrings, String& val) {
 }
 
 void handle_state_post() {
-  StaticJsonBuffer<1024> jsonBuffer;
+  StaticJsonDocument<1024> jsonDoc;
   Serial.println("Received post!");
   String body = web_server.arg("plain");
-  JsonObject& root = jsonBuffer.parseObject(body);
-  String mode = root["mode"];
-  String color = root["color"];
+  deserializeJson(jsonDoc, body);
+  String mode = jsonDoc["mode"];
+  String color = jsonDoc["color"];
   led_color = strtoul(color.c_str(), NULL, 16);
   if (led_color == 0) { led_color = red; }
   mode.toUpperCase();
@@ -105,9 +105,9 @@ void handle_state_post() {
 
   switch (display_mode) {
     case NUMBERS:
-      JsonArray& array = root["rows"];
+      JsonArray array = jsonDoc["rows"];
       for (int i = 0; i < NUM_ROWS; i++) {
-        JsonObject& object = array[i];
+        JsonObject object = array[i];
         String c = object["color"];
         row[i].color = strtoul(c.c_str(), NULL, 16);
         row[i].number = object["number"];
